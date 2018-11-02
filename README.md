@@ -4,6 +4,13 @@
 
 NOTE: this package is specific to WealthForge's json log structure.
 
+## Installation
+currently, this package is not published on PyPi.  so, just install from github via pip
+
+```
+     pip install git+https://github.com/Wealthforge-Technologies/dd-sys-logger-py.git
+```
+
 ## Basics
 From within an application, wire up the logger thusly
 
@@ -34,8 +41,8 @@ To ensure span errors are logged with the appropriate level
 ```
      try:
         ... stuff ...
-    except Exception as e:
+     except Exception as e:
         span._dd_span.set_traceback()
-    finally:
+     finally:
         ddsyslogger.finish(span)
 ```
