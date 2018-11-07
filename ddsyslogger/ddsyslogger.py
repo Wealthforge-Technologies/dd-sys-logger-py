@@ -1,10 +1,37 @@
-import socket, logging, logging.handlers
+import socket, logging, logging.handlers, wrapt
 from pythonjsonlogger import jsonlogger
+from ddtrace          import Pin
+from ddtrace.contrib  import dbapi
+from ddtrace.ext      import sql
 
 #
 # Some constants...
 #
 LOGGER_NAME = 'wf_logger'
+
+logger = logging.getLogger(LOGGER_NAME)
+
+def _trace_method(self, method, resource, extra_tags, *args, **kwargs):
+    pin = Pin.get_from(self)
+    if not pin or not pin.enabled():
+        return method(*args, **kwargs)
+    service = pin.service
+
+    s = pin.tracer.trace(self._self_datadog_name, service=service, resource=resource)
+    s.span_type = sql.TYPE
+    s.set_tags(pin.tags)
+    s.set_tags(extra_tags)
+
+    try:
+        return method(*args, **kwargs)
+    finally:
+        s.set_metric("db.rowcount", self.rowcount)
+        finish(s) # finish and log
+
+def wrapped_trace_method(wrapped, instance, args, kwargs):
+    return _trace_method(instance, *args, **kwargs)
+
+wrapt.wrap_function_wrapper(dbapi.TracedCursor, '_trace_method', wrapped_trace_method)
 
 # helper method that
 #   1) finishes an data dog open tracing span
@@ -12,8 +39,12 @@ LOGGER_NAME = 'wf_logger'
 def finish(span):
     span.finish()
 
-    logger = logging.getLogger(LOGGER_NAME)
-    logger.info({ 'data' : {'span': span._dd_span.to_dict()}})
+    try: # open trace span
+        logger.info({ 'data' : {'span': span._dd_span.to_dict()}})
+    except AttributeError: # data dog span
+        logger.info({ 'data' : {'span': span.to_dict()}})
+    except Exception as e:
+        raise e
 
 # class for formatting a log message as json, which will later be sent to DataDog's logging platform via UDP
 class JsonFormatter(jsonlogger.JsonFormatter):
