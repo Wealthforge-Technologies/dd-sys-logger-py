@@ -4,13 +4,6 @@ from ddtrace          import Pin
 from ddtrace.contrib  import dbapi
 from ddtrace.ext      import sql
 
-#
-# Some constants...
-#
-LOGGER_NAME = 'wf_logger'
-
-logger = logging.getLogger(LOGGER_NAME)
-
 def _trace_method(self, method, resource, extra_tags, *args, **kwargs):
     pin = Pin.get_from(self)
     if not pin or not pin.enabled():
@@ -40,8 +33,10 @@ def finish(span):
     span.finish()
 
     try: # open trace span
+        logger = logging.getLogger(span._dd_span.service)
         logger.info({ 'data' : {'span': span._dd_span.to_dict()}})
     except AttributeError: # data dog span
+        logger = logging.getLogger(span.service)
         logger.info({ 'data' : {'span': span.to_dict()}})
     except Exception as e:
         raise e
