@@ -26,6 +26,38 @@ def wrapped_trace_method(wrapped, instance, args, kwargs):
 
 wrapt.wrap_function_wrapper(dbapi.TracedCursor, '_trace_method', wrapped_trace_method)
 
+# helper method that configures each syslogger within a json array
+# EXAMPLE JSON Configuration:
+'''
+        [
+            {"service_name": "xx.xxxxx.us-east-1.rds.amazonaws.com", "host": "10.0.0.1", "port": 10000},
+            {"service_name": "neo4j",                                "host": "10.0.0.1", "port": 10001},
+            {"service_name": "web-admin",                            "host": "10.0.0.1", "port": 10002, "is_primary"=true}
+        ]
+'''
+def configure(env, log_level_name, syslogs):
+    primary_logger = None
+
+    for syslog in syslogs: # NOTE: ensure the overall logger for this service is the *LAST* logger in the logger array config
+        print syslog
+
+        json_handler = SysLogHandler(address = (syslog['host'], syslog['port']), facility=SysLogHandler.LOG_LOCAL0)
+        json_handler.setFormatter(JsonFormatter(env))
+
+        logger = logging.getLogger(syslog['service_name'])
+        logger.addHandler(json_handler)
+        logger.setLevel(logging.getLevelName(log_level_name)) # 'DEBUG', 'INFO', etc.
+
+        if syslog.has_key('is_primary') and syslog['is_primary']:
+            primary_logger = logger
+
+        logger.debug("configured '{}' syslogger".format(syslog['service_name']))
+
+    if not primary_logger:
+        raise Exception('no primary sys logger specified')
+
+    return primary_logger
+
 # helper method that
 #   1) finishes an data dog open tracing span
 #   2) logs the contents as json via syslog (similar to the golang logger)
