@@ -7,5 +7,5 @@ setup(name='ddsyslogger',
       author='Obie Quelland',
       author_email='oquelland@wealthforge.com',
       license='MIT',
-      packages=['ddsyslogger'],
+      packages=['ddsyslogger', 'ddtracerneo4j'],
       zip_safe=False)

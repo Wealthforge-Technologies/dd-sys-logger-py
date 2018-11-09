@@ -16,15 +16,15 @@ From within an application, wire up the logger thusly
 
 ```python
      import ddsyslogger
-     
+
      json_handler = ddsyslogger.SysLogHandler(address = (<syslog host address>, <syslog port>)),
      facility     = ddsyslogger.SysLogHandler.LOG_LOCAL0)
      json_handler.setFormatter(ddsyslogger.JsonFormatter(<logging_environment>))
-     
+
      logger = logging.getLogger(ddsyslogger.LOGGER_NAME)
      logger.addHandler(json_handler)
      logger.setLevel(logging.INFO)
-     
+
      logger.info('fun')
 ```
 
@@ -32,7 +32,7 @@ The wrapper also supports logging Datadog's implementation of open tracing spans
 
 ```
      span = opentracing.tracer.start_span('lambda.invoke')
-     .... do some stuff ...
+     ... stuff ...
      ddsyslogger.finish(span)
 ```
 
@@ -45,4 +45,13 @@ To ensure span errors are logged with the appropriate level
         span._dd_span.set_traceback()
      finally:
         ddsyslogger.finish(span)
+```
+
+This package also contains the following orthagonal features
+
+Datadog Tracer for Neo4j graph database driver
+
+```
+     from ddsyslogger import ddtracerneo4j
+     ddtracerneo4j.patch()
 ```
