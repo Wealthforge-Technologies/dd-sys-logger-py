@@ -52,6 +52,6 @@ This package also contains the following orthagonal features
 Datadog Tracer for Neo4j graph database driver
 
 ```
-     from ddsyslogger import ddtracerneo4j
+     import ddtracerneo4j
      ddtracerneo4j.patch()
 ```
