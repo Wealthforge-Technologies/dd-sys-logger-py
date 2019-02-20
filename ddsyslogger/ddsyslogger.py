@@ -39,7 +39,7 @@ def configure(env, log_level_name, syslogs):
     primary_logger = None
 
     for syslog in syslogs: # NOTE: ensure the overall logger for this service is the *LAST* logger in the logger array config
-        print syslog
+        print(syslog)
 
         json_handler = SysLogHandler(address = (syslog['host'], syslog['port']), facility=SysLogHandler.LOG_LOCAL0)
         json_handler.setFormatter(JsonFormatter(env))
