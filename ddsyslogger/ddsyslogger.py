@@ -150,7 +150,7 @@ class SysLogHandler(logging.handlers.SysLogHandler):
                     self.socket.send(msg)
             elif self.socktype == socket.SOCK_DGRAM: # UDP (vs TCP)
                 # Append a \n (new line) to the msg.
-                msg.append(10)
+                msg += b'\x10'
                 self.socket.sendto(msg, self.address) # ensure that we suffix with a new line so it's properly ingested by data dog
             else:
                 self.socket.sendall(msg)
