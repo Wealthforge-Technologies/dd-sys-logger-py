@@ -149,7 +149,9 @@ class SysLogHandler(logging.handlers.SysLogHandler):
                     self._connect_unixsocket(self.address)
                     self.socket.send(msg)
             elif self.socktype == socket.SOCK_DGRAM: # UDP (vs TCP)
-                self.socket.sendto(msg + '\n', self.address) # ensure that we suffix with a new line so it's properly ingested by data dog
+                # Append a \n (new line) to the msg.
+                msg.append(10)
+                self.socket.sendto(msg, self.address) # ensure that we suffix with a new line so it's properly ingested by data dog
             else:
                 self.socket.sendall(msg)
         except (KeyboardInterrupt, SystemExit):
