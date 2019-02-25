@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='ddsyslogger',
-      version='0.3',
+      version='0.4',
       description='datadog syslog wrapper library for json logging',
       url='https://github.com/Wealthforge-Technologies/dd-sys-logger-py',
       author='Obie Quelland',

@@ -138,8 +138,8 @@ class SysLogHandler(logging.handlers.SysLogHandler):
             # prio = '<%d>' % self.encodePriority(self.facility,
             #                                     self.mapPriority(record.levelname))
             # Message is a string. Convert to bytes as required by RFC 5424
-            if type(msg) is unicode:
-                msg = msg.encode('utf-8')
+            msg = msg.encode('utf-8')
+
             # msg = prio + msg
             if self.unixsocket:
                 try:
