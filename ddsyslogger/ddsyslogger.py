@@ -48,7 +48,7 @@ def configure(env, log_level_name, syslogs):
         logger.addHandler(json_handler)
         logger.setLevel(logging.getLevelName(log_level_name)) # 'DEBUG', 'INFO', etc.
 
-        if syslog.has_key('is_primary') and syslog['is_primary']:
+        if syslog.get('is_primary') and syslog['is_primary']:
             primary_logger = logger
 
         logger.debug("configured '{}' syslogger".format(syslog['service_name']))
