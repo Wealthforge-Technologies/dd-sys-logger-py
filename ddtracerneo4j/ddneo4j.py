@@ -1,6 +1,6 @@
 import wrapt
 import ddsyslogger
-from neo4j.v1    import GraphDatabase, Session
+from neo4j    import GraphDatabase, Session
 from ddtrace     import Pin
 from ddtrace.ext import sql, net, db
 
